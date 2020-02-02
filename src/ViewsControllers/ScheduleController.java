@@ -45,9 +45,7 @@ public class ScheduleController extends InnerController {
     public void initialize() {
         weekMonthChoiceBox.setItems(weekMonthChoices);
         weekMonthChoiceBox.setValue(weekMonthChoices.get(0));
-        weekMonthChoiceBox.setOnAction(e -> {
-            toggleWeekMonth(weekMonthChoiceBox.getValue());
-        });
+        weekMonthChoiceBox.setOnAction(e -> toggleWeekMonth(weekMonthChoiceBox.getValue()));
         setUpCalendar();
         isMonth = true;
     }
@@ -88,6 +86,7 @@ public class ScheduleController extends InnerController {
             if (newAppointment != null) {
                 appointmentsListView.getItems().add(newAppointment);
                 Collections.sort(appointmentsListView.getItems());
+                refresh();
             }
         });
         stage.show();
@@ -115,6 +114,7 @@ public class ScheduleController extends InnerController {
         stage.setScene(scene);
         stage.setOnCloseRequest(e -> {
             populateAppointmentsListView(selectedAppointment.getStart().toLocalDate());
+            refresh();
         });
         stage.show();
         controller.setAppointment(selectedAppointment);
@@ -213,6 +213,16 @@ public class ScheduleController extends InnerController {
             }
             String originalStyle = day.getStyle();
             day.setOnMouseReleased(e -> day.setStyle(originalStyle));
+        }
+    }
+
+    private void refresh() {
+        if (isMonth) {
+            calendarAnchorPane.getChildren().remove(calendar);
+            setUpCalendar();
+        } else {
+            calendarAnchorPane.getChildren().remove(week);
+            setUpWeek();
         }
     }
 }
