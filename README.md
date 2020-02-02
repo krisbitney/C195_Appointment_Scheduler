@@ -1,7 +1,7 @@
 # C195_Appointment_Scheduler
 Desktop Application for WGU C195 Software II course
 
-#### This application allows consultants of an imaginary firm to:
+#### This application allows consultants of a business to:
 * View a calendar by month or week, with clickable days
 * add, edit, and delete appointments from database
 * add, edit, and delete customers from database
