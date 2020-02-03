@@ -2,10 +2,9 @@ package ViewsControllers;
 
 import Dao.AppointmentDao;
 import Dao.AppointmentDaoImp;
-import Dao.CustomerDao;
-import Dao.CustomerDaoImp;
 import DataModel.Appointment;
 import DataModel.Customer;
+import Utils.InputValidator;
 import Utils.UserSettings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,8 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
-import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class EditAppointmentController {
 
@@ -102,20 +99,24 @@ public class EditAppointmentController {
         String url = appointmentUrlTextField.getText();
         String type = appointmentTypeTextField.getText();
         String description = appointmentDescriptionTextArea.getText();
-        // get start date and time
-        LocalDateTime startDateTime = createDateTime(
-                datePicker.getValue(),
-                startHourTextField.getText(),
-                startMinuteTextField.getText(),
-                startAmPmChoiceBox.getValue()
-        );
-        // get end date and time
-        LocalDateTime endDateTime = createDateTime(
-                datePicker.getValue(),
-                endHourTextField.getText(),
-                endMinuteTextField.getText(),
-                endAmPmChoiceBox.getValue()
-        );
+
+        // dates and times
+        LocalDateTime startDateTime;
+        LocalDateTime endDateTime;
+        try {
+            String validStartHour = InputValidator.validateHourInput(startHourTextField.getText());
+            String validStartMinute = InputValidator.validateMinuteInput(startMinuteTextField.getText());
+            String validEndHour = InputValidator.validateHourInput(endHourTextField.getText());
+            String validEndMinute = InputValidator.validateMinuteInput(endMinuteTextField.getText());
+            startDateTime = createDateTime(datePicker.getValue(), validStartHour, validStartMinute, startAmPmChoiceBox.getValue());
+            endDateTime = createDateTime(datePicker.getValue(), validEndHour, validEndMinute, endAmPmChoiceBox.getValue());
+            InputValidator.validateAppointmentDateTimeLogic(startDateTime, endDateTime);
+        } catch (IllegalArgumentException e) {
+            NotificationWindow notificationWindow = new NotificationWindow(e.getMessage());
+            notificationWindow.launchAndWait();
+            return;
+        }
+
         // update appointment
         AppointmentDao appointmentDao = new AppointmentDaoImp();
         boolean isUpdated = appointmentDao.updateAppointment(appointment.getAppointmentId(), customer.getCustomerId(), UserSettings.userId,
